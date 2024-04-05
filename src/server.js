@@ -1,42 +1,61 @@
 const WebSocket = require('ws');
 
-const PORT = process.env.PORT || 6969; // Set port number
-
+const PORT = 10000; // Or any other port you choose
 const wss = new WebSocket.Server({ port: PORT });
 
 let players = []; // Array to store connected players
 
-// Function to broadcast a message to all connected clients
-function broadcast(message) {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-        }
-    });
-}
-
-// Handle new WebSocket connections
 wss.on('connection', ws => {
-    console.log('New client connected');
+    console.log('Client connected');
+
+    // Generate a unique ID for the new player
+    const playerId = generateUniqueId();
 
     // Add the new player to the list of players
-    players.push(ws);
+    players.push({
+        id: playerId,
+        socket: ws,
+        x: 0, // Initial X coordinate
+        y: 0, // Initial Y coordinate
+        gameId: null // Initially not joined to any game
+    });
 
-    // Send a welcome message to the new player
-    ws.send('Welcome to the game server! FREEK IS THE ENEMEY!!!');
+    // Send the player ID to the client
+    ws.send(JSON.stringify({ type: 'playerId', playerId }));
 
-    // Handle messages from the client
+    // Listen for messages from the client
     ws.on('message', message => {
-        
-        if (message.toString() === 'ping') {
-            // Respond to ping requests
-            ws.send('pong');
+        console.log('Message from client:', message);
+
+        // Parse the received JSON message
+        const data = JSON.parse(message);
+
+        // Handle different message types
+        switch (data.type) {
+            case 'joinGame':
+                // Update the player's game ID
+                const gameId = data.gameId;
+                const player = players.find(p => p.id === playerId);
+                if (player) {
+                    player.gameId = gameId;
+                    console.log(`Player ${playerId} joined game ${gameId}`);
+                }
+                break;
+            case 'updateLocation':
+                // Update the player's location
+                const { x, y } = data.location;
+                const playerToUpdate = players.find(p => p.id === playerId);
+                if (playerToUpdate) {
+                    playerToUpdate.x = x;
+                    playerToUpdate.y = y;
+                    console.log(`Player ${playerId} updated location to (${x}, ${y})`);
+                }
+                break;
+            case 'ping':
+                ws.send('PONG!!!!! MUAHAHAHHAHAHA')
+            default:
+                console.log('Unknown message type:', data.type);
         }
-
-        console.log('Received message:', message);
-
-        // Broadcast the received message to all clients
-        broadcast(message);
     });
 
     // Handle client disconnections
@@ -44,10 +63,13 @@ wss.on('connection', ws => {
         console.log('Client disconnected');
 
         // Remove the disconnected player from the list of players
-        players = players.filter(player => player !== ws);
+        players = players.filter(player => player.id !== playerId);
     });
 });
 
+// Function to generate a unique player ID
+function generateUniqueId() {
+    return Math.random().toString(36).substr(2, 9);
+}
 
-
-console.log(`Server is running on port ${PORT}`);
+console.log(`Server running on port ${PORT}`);

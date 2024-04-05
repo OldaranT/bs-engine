@@ -23,21 +23,20 @@ wss.on('connection', ws => {
     players.push(ws);
 
     // Send a welcome message to the new player
-    ws.send('Welcome to the game server!');
+    ws.send('Welcome to the game server! FREEK IS THE ENEMEY!!!');
 
     // Handle messages from the client
     ws.on('message', message => {
-        console.log('Received message:', message);
-
-        // Broadcast the received message to all clients
-        broadcast(message);
-    });
-
-    ws.on('message', message => {
+        
         if (message === 'ping') {
             // Respond to ping requests
             ws.send('pong');
         }
+
+        console.log('Received message:', message);
+
+        // Broadcast the received message to all clients
+        broadcast(message);
     });
 
     // Handle client disconnections

@@ -52,7 +52,7 @@ wss.on('connection', ws => {
                 }
                 break;
             case 'ping':
-                ws.send('PONG!!!!! MUAHAHAHHAHAHA')
+                ws.send('PONG!!!!! MUAHAHAHHAHAHA: ', data.message)
             default:
                 console.log('Unknown message type:', data.type);
         }

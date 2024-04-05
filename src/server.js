@@ -25,10 +25,11 @@ wss.on('connection', ws => {
 
     // Listen for messages from the client
     ws.on('message', message => {
-        console.log('Message from client:', message);
+        console.log('Message from client:', message.toString());
 
         // Parse the received JSON message
         const data = JSON.parse(message);
+        console.log(data);
 
         // Handle different message types
         switch (data.type) {

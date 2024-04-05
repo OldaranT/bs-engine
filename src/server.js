@@ -30,6 +30,7 @@ wss.on('connection', ws => {
         // Parse the received JSON message
         const data = JSON.parse(message);
         console.log(data);
+        ws.send(JSON.stringify(data));
 
         // Handle different message types
         switch (data.type) {

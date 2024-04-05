@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const PORT = process.env.PORT || 3000; // Set port number
+const PORT = process.env.PORT || 6969; // Set port number
 
 const wss = new WebSocket.Server({ port: PORT });
 
@@ -33,6 +33,13 @@ wss.on('connection', ws => {
         broadcast(message);
     });
 
+    ws.on('message', message => {
+        if (message === 'ping') {
+            // Respond to ping requests
+            ws.send('pong');
+        }
+    });
+
     // Handle client disconnections
     ws.on('close', () => {
         console.log('Client disconnected');
@@ -41,5 +48,7 @@ wss.on('connection', ws => {
         players = players.filter(player => player !== ws);
     });
 });
+
+
 
 console.log(`Server is running on port ${PORT}`);

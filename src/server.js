@@ -28,7 +28,7 @@ wss.on('connection', ws => {
     // Handle messages from the client
     ws.on('message', message => {
         
-        if (message === 'ping') {
+        if (message.toString() === 'ping') {
             // Respond to ping requests
             ws.send('pong');
         }
